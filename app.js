@@ -3,14 +3,16 @@
 // is it because of the old version of the website? I  think this link refers to the same instructions https://www.passportjs.org/howtos/password/
 
 require('dotenv').config();
-var bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 const express = require('express');
-const path = require('path');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const mongoose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
+
 const Schema = mongoose.Schema;
+
 const MongoDBStore = require('connect-mongodb-session')(session);
 
 //created new collection in mongo db
@@ -29,15 +31,16 @@ mongoose.connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'mongo connection error'));
 
-//SET UNIQUE USERNAME -LATER
+//username should be unique- implemented npm package mongoose-unique-validator,  how can we send to the user a ui friendly response?
 const User = mongoose.model(
   'User',
-  new Schema({
-    username: { type: String, required: true },
+    userSchema = new Schema({
+    username: { type: String, unique: true, required: true,
+    },
     password: { type: String, required: true },
-  })
+  }, { runValidators: true })
 );
-
+userSchema.plugin(uniqueValidator);
 const app = express();
 
 //set the directory where views/templates are located. __dirname is a special variable in Node.js that represents the current directory path of the script file. 
