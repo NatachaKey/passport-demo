@@ -14,7 +14,7 @@
   <% } else { %>
   <h1>please log in</h1>
   <% messages.forEach((msg) =>{ %>
-  <p><%= msg %></p>
+  <p><b><em><%= msg %></em></b></p>
   <% }) %>
 
   <form action="/log-in" method="POST">
