@@ -148,6 +148,13 @@ app.get('/log-out', (req, res) => {
 // HIDE PASSWORD
 app.post('/sign-up', async (req, res, next) => {
   try {
+      const { username }= req.body;
+      const usernameAlreadyExists = await User.findOne({username})
+      if(usernameAlreadyExists){
+        res.send('This username already exists, try another one');
+        res.redirect('/');
+      }
+      //need to render it on the same page and offer redirect to sign up page
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     await User.create({
       username: req.body.username,
