@@ -152,7 +152,7 @@ app.post('/sign-up', async (req, res, next) => {
       const usernameAlreadyExists = await User.findOne({username})
       if(usernameAlreadyExists){
         res.send('This username already exists, try another one');
-        res.redirect('/');
+
       }
       //need to render it on the same page and offer redirect to sign up page
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
