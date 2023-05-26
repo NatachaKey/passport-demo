@@ -38,7 +38,7 @@ const User = mongoose.model(
     username: { type: String, unique: true, required: true,
     },
     password: { type: String, required: true },
-  }, { runValidators: true })
+  })
 );
 userSchema.plugin(uniqueValidator);
 const app = express();
@@ -136,7 +136,14 @@ app.get('/', (req, res) => {
   res.render('index', { messages });
 });
 
-app.get('/sign-up', (req, res) => res.render('sign-up-form'));
+app.get('/sign-up', (req, res) => {
+  let messages = [];
+  if (req.session.messages) {
+    messages = req.session.messages;
+    req.session.messages = [];
+  }
+  res.render('sign-up-form', { messages });
+});
 
 //delete all the session information at logoff time
 app.get('/log-out', (req, res) => {
@@ -148,12 +155,17 @@ app.get('/log-out', (req, res) => {
 // HIDE PASSWORD
 app.post('/sign-up', async (req, res, next) => {
   try {
-      const { username }= req.body;
-      const usernameAlreadyExists = await User.findOne({username})
-      if(usernameAlreadyExists){
-        req.session.messages.push("This username is already taken. Please choose another one");
-        res.redirect('/');
-      }
+    //another way to set custom msg if smn tries tp sign up with an existing username :
+    
+      // const { username }= req.body;
+      // const usernameAlreadyExists = await User.findOne({username})
+      // if(usernameAlreadyExists){
+      //   if (!req.session.messages) {
+      // 		req.session.messages = [];
+    	// }
+       // req.session.messages.push("This username is already taken. Please choose another one");
+       // res.redirect('/sign-up');
+      //}
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     await User.create({
       username: req.body.username,
@@ -161,6 +173,20 @@ app.post('/sign-up', async (req, res, next) => {
     });
     res.redirect('/');
   } catch (err) {
+    //handling sign up error with mongoose-unique-validator library -line 12,43
+    console.log("HANDLING SIGN UP ERROR: ", err?.errors)
+
+    // If the error that we're catching is due to someone trying to sign up with a duplicate username
+    // then we will set a message and redirect them
+    // otherwise we pass the error along to the next middleware using `next(...)`
+    if (err.name === 'ValidationError') {
+      if (!req.session.messages) {
+        req.session.messages = [];
+      }
+      req.session.messages.push(err?.errors?.username?.message);
+      req.session.messages.push(err?.errors?.password?.message);
+      return res.redirect('/sign-up');
+    }
     return next(err);
   }
 });

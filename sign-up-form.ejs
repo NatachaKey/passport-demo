@@ -6,6 +6,11 @@
 </head>
 <body>
   <h1>Sign Up</h1>
+  <% if (messages) {%>
+    <% messages.forEach((msg) =>{ %>
+      <p><b><em><%= msg %></em></b></p>
+    <% }) %>
+  <%}%>
   <form action="" method="POST">
     <label for="username">Username</label>
     <input name="username" placeholder="username" type="text" />
