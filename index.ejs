@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+
+<body>
+  <% if (currentUser) {%>
+  <h1>WELCOME BACK <%= currentUser.username %></h1>
+  <p>Visit your<a href="/restricted"> personal account </a>to see and update your privat data.</p>
+  <a href="/log-out">LOG OUT</a>
+  <% } else { %>
+  <h1>please log in</h1>
+  <% messages.forEach((msg) =>{ %>
+  <p><b><em><%= msg %></em></b></p>
+  <% }) %>
+
+  <form action="/log-in" method="POST">
+    <label for="username">Username</label>
+    <input name="username" placeholder="username" type="text" />
+    <label for="password">Password</label>
+    <input name="password" type="password" />
+    <button>Log In</button>
+    <p>Don't have an account? <b><a href="/sign-up">Sign up</a></b></p>
+  </form>
+  <%}%>
+</body>
+</html>
